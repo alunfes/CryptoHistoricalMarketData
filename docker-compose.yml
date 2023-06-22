@@ -1,0 +1,9 @@
+services:
+  app:
+    build: ./app
+    restart: always
+    tty: true
+    working_dir: "/root/"
+    volumes:
+      - ./app:/root/app
+    

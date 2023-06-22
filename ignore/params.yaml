@@ -1,0 +1,12 @@
+exchanges: ['okx', 'bybit', 'apexpro']
+since_num_days_before: 30 #from_ts as x days before from now
+ohlcv_data_interval:
+  okx: '1m'
+  bybit: 1 #1,3,5,15,30,60,120,240,360,720,D,M,W
+  dydx: '1MIN' #1DAY, 4HOURS, 1HOUR, 30MINS, 15MINS, 5MINS, 1MIN.
+  apexpro: 1
+max_download_per_trial:
+  okx: 100
+  bybit: 200
+  dydx: 100
+  apexpro: 1500
