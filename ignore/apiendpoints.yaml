@@ -10,3 +10,4 @@ dydx:
 apexpro:
   ticker: https://pro.apex.exchange/api/v1/symbols
   ohlc: https://pro.apex.exchange/api/v1/klines #?symbol=BTCUSDC&interval=1&start=1686698700
+  

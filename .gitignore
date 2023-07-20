@@ -13,3 +13,5 @@ __pycache__/
 /.devcontainer
 
 /.vscode
+
+.DS_Store
