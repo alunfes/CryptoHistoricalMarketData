@@ -9,3 +9,7 @@
 
 # Ignore "__pycache__" folder
 __pycache__/
+
+/.devcontainer
+
+/.vscode
