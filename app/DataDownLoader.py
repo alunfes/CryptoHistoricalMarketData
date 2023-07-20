@@ -1,3 +1,8 @@
+'''
+/usr/local/lib/python3.11/site-packages/parsimonious/expressions.pyのfrom inspect import getargspecをgetfullargspecに修正
+
+'''
+
 import requests
 import yaml
 import asyncio
@@ -5,7 +10,13 @@ import aiohttp
 import asyncio
 import time
 import datetime
+import sys
 from dateutil.parser import isoparse
+from dydx3 import Client
+from dydx3.helpers.request_helpers import generate_now_iso
+from web3 import Web3
+from dydx3.constants import *
+
 
 
 from TickerConverter import TickerConverter
@@ -190,7 +201,8 @@ class DataDownLoader:
                         else:
                             #一番新しいiso日時をtsに変換して10sec加算して再びisoに変換する
                             since_ts = int(isoparse(res['candles'][0]['startedAt']).timestamp()) + 1
-                            #since_ts_iso = datetime.datetime.utcfromtimestamp(next_since_ts).isoformat()
+                            since_ts_iso = datetime.datetime.utcfromtimestamp(since_ts).isoformat()
+                            pass
                     else:
                         print('Dydx downloaded ohlc data is not expected format!')
                         print(res)
@@ -199,6 +211,25 @@ class DataDownLoader:
             print('Downloaded ', 'dydx', '-', symbol, ' len=', len(ohlcv))
             await OHLCConverter.convert_ohlc('dydx', ohlcv, symbol, base, quote)
             await DataWriter.write_data('dydx', symbol, base, quote)
+
+
+    async def __dydx(self, symbol):
+        client = Client(
+            host='https://api.dydx.exchange',
+        )
+        client.public.get_markets()
+        market_symbol = f"MARKET_{symbol.upper()}_USD"
+
+        # getattrを使用して定数の値を取得します
+        market = getattr(sys.modules['dydx3.constants'], market_symbol)
+
+        price = client.public.get_candles(market=market, resolution="5MINS")
+        print(price)
+
+        candles = client.public.get_candles(
+        market=MARKET_BTC_USD,
+        resolution='1DAY',
+        )
 
 
     '''

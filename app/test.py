@@ -2,37 +2,56 @@ from typing import Any
 
 
 import pandas as pd
+import requests
+import yaml
+import asyncio
+import aiohttp
+import asyncio
+import time
+import datetime
+import sys
+from dateutil.parser import isoparse
+from dydx3 import Client
+from dydx3.helpers.request_helpers import generate_now_iso
+from web3 import Web3
+from dydx3.constants import *
 
 class test:
     def __init__(self):
-        #df = pd.read_parquet('./app/Data/bybit-1000BONK-USDT.parquet')
-        df = pd.read_csv('./app/Data/bybit-BTC-USDT.csv')
-        self.__check_ts_diff(df)
-        #self.__check_duplication(df)
+        pass
 
 
-    def __check_ts_diff(self, df):
-        df = df.sort_values("timestamp")
-        df['diff'] = df['timestamp'].diff().abs()
-        d = list(df['diff'])
-        # 差分が60000でない行を探す
-        invalid_timestamps = df.loc[df['diff'] != 60000, 'timestamp']
-        # invalid_timestampsが空でなければ表示
-        if not invalid_timestamps.empty:
-            print(invalid_timestamps)
-        else:
-            print("All timestamps are spaced by 60000.")
-        df.to_csv('./app/Data/sorted.csv')
+    def dydx(self, symbol):
+        since_ts = (int(time.time()) - 60 * 1440 * 10) * 1000
+        since_ts = since_ts/1000
+        since_ts_iso = datetime.datetime.utcfromtimestamp(int(since_ts)).isoformat()
+        to_ts_iso = 
 
+        client = Client(
+            host='https://api.dydx.exchange',
+        )
+        client.public.get_markets()
+        market_symbol = f"MARKET_{symbol.upper()}_USD"
 
-    def __check_duplication(self, df):
-        # 重複のチェック
-        duplicates = df.duplicated()
-        if True in duplicates:
-            print('duplicates!')
-        # 重複がある場合には最初のデータだけを残す
-        df_no_duplicates = df[~duplicates]
-        # 結果の表示
-        #print(df_no_duplicates['timestamp'])
+        # getattrを使用して定数の値を取得します
+        market = getattr(sys.modules['dydx3.constants'], market_symbol)
 
-t = test()
+        while True:
+            candles = client.public.get_candles(
+                market=market,
+                resolution='1MIN',
+                from_iso = since_ts_iso,
+            )
+            if len(candles.data['candles']) > 0:
+                print(since_ts_iso)
+                since_ts = int(isoparse(candles.data['candles'][0]['startedAt']).timestamp()) + 1
+                since_ts_iso = datetime.datetime.utcfromtimestamp(since_ts).isoformat()
+                print(candles.data['candles'][0]['startedAt'], candles.data['candles'][-1]['startedAt'])
+                print(since_ts_iso)
+            else:
+                break
+            
+
+if __name__ == '__main__':
+    t = test()
+    t.dydx('ETH')
