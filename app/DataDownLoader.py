@@ -62,7 +62,7 @@ class DataDownLoader:
             async with asyncio.TaskGroup() as tg:
                 task_okx = tg.create_task(self.__start_okx_ohlcv_download(since_ts, till_ts))
                 task_bybit = tg.create_task(self.__start_bybit_ohlcv_download(since_ts, till_ts))
-                #task_dydx = tg.create_task(self.__start_dydx_ohlcv_download(since_ts, till_ts))
+                task_dydx = tg.create_task(self.__start_dydx_ohlcv_download(since_ts, till_ts))
                 task_apexpro = tg.create_task(self.__start_apexpro_ohlcv_download(since_ts, till_ts))
         except* Exception as err:
             print(f"{err.exceptions=}")
