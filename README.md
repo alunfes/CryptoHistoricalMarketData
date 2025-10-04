@@ -1,3 +1,6 @@
+> **日本語版のREADMEは[こちら](README_ja.md)をご覧ください。**
+> **For Japanese documentation, please see [README_ja.md](README_ja.md).**
+
 Overview
 
 CryptoHistoricalMarketData is a Python-based application designed to fetch, process, and store historical cryptocurrency market data. The project supports handling OHLC (Open, High, Low, Close) and ticker data, offering modular functionality for data downloading, transformation, and storage.
