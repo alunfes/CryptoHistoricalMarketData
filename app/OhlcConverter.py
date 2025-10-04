@@ -51,7 +51,8 @@ class OHLCConverter:
         '''
         [{"startedAt":"2023-06-14T05:00:00.000Z","updatedAt":"2023-06-14T05:18:24.714Z","market":"BTC-USD","resolution":"1HOUR","low":"25973","high":"25989","open":"25981","close":"25981","baseTokenVolume":"134.4184","trades":"381","usdVolume":"3492552.6768","startingOpenInterest":"2521.6992"},{"startedAt":"2023-06-14T04:00:00.000Z","updatedAt":"2023-06-14T04:59:58.918Z","market":"BTC-USD","resolution":"1HOUR","low":"25966","high":"26006","open":"25980","close":"25981","baseTokenVolume":"418.9272","trades":"1386","usdVolume":"10886621.3371","startingOpenInterest":"2518.8522"}
         '''
-        timestamps = [int(datetime.datetime.fromisoformat(item['startedAt']).timestamp()) for item in ohlc_list]
+        # Convert to milliseconds for consistency with other exchanges
+        timestamps = [int(datetime.datetime.fromisoformat(item['startedAt']).timestamp() * 1000) for item in ohlc_list]
         opens = [float(item['open']) for item in ohlc_list]
         highs = [float(item['high']) for item in ohlc_list]
         lows = [float(item['low']) for item in ohlc_list]

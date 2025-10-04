@@ -82,44 +82,64 @@ class DataDownLoader:
 
     async def __start_okx_ohlcv_download(self, since_ts, till_ts):
         tickers = TickerData.get_tickers_by_exchange('okx')
-        counter = 0
         for ticker in tickers:
-            await self.__download_okx_ohlcv(ticker.symbol, ticker.base, ticker.quote, since_ts, till_ts, self.ohlcv_data_interval['okx'])
+            # Check if data already exists and get last timestamp
+            last_ts = DataWriter.get_last_timestamp('okx', ticker.base, ticker.quote)
+            download_since = last_ts + 60000 if last_ts is not None else since_ts  # Add 1 minute (60000 ms) to avoid duplicate
+            
+            # Skip if no new data to download
+            if download_since >= till_ts:
+                print(f'Skipping okx-{ticker.symbol}: data is up to date')
+                continue
+            
+            await self.__download_okx_ohlcv(ticker.symbol, ticker.base, ticker.quote, download_since, till_ts, self.ohlcv_data_interval['okx'])
             await asyncio.sleep(0.5)
-            counter += 0
-            if counter > 1:
-                break
 
 
     async def __start_bybit_ohlcv_download(self, since_ts, till_ts):
         tickers = TickerData.get_tickers_by_exchange('bybit')
-        counter = 0
         for ticker in tickers:
-            await self.__download_bybit_ohlcv(ticker.symbol, ticker.base, ticker.quote, since_ts, till_ts, self.ohlcv_data_interval['bybit'])
+            # Check if data already exists and get last timestamp
+            last_ts = DataWriter.get_last_timestamp('bybit', ticker.base, ticker.quote)
+            download_since = last_ts + 60000 if last_ts is not None else since_ts  # Add 1 minute (60000 ms) to avoid duplicate
+            
+            # Skip if no new data to download
+            if download_since >= till_ts:
+                print(f'Skipping bybit-{ticker.symbol}: data is up to date')
+                continue
+            
+            await self.__download_bybit_ohlcv(ticker.symbol, ticker.base, ticker.quote, download_since, till_ts, self.ohlcv_data_interval['bybit'])
             await asyncio.sleep(0.5)
-            counter += 0
-            if counter > 3:
-                break
 
     async def __start_dydx_ohlcv_download(self, since_ts, till_ts):
         tickers = TickerData.get_tickers_by_exchange('dydx')
-        counter = 0
         for ticker in tickers:
-            await self.__download_dydx_ohlcv(ticker.symbol, ticker.base, ticker.quote, since_ts, till_ts, self.ohlcv_data_interval['dydx'])
+            # Check if data already exists and get last timestamp
+            last_ts = DataWriter.get_last_timestamp('dydx', ticker.base, ticker.quote)
+            download_since = last_ts + 60000 if last_ts is not None else since_ts  # Add 1 minute (60000 ms) to avoid duplicate
+            
+            # Skip if no new data to download
+            if download_since >= till_ts:
+                print(f'Skipping dydx-{ticker.symbol}: data is up to date')
+                continue
+            
+            await self.__download_dydx_ohlcv(ticker.symbol, ticker.base, ticker.quote, download_since, till_ts, self.ohlcv_data_interval['dydx'])
             await asyncio.sleep(0.5)
-            counter += 0
-            if counter > 10:
-                break
 
     async def __start_apexpro_ohlcv_download(self, since_ts, till_ts):
         tickers = TickerData.get_tickers_by_exchange('apexpro')
-        counter = 0
         for ticker in tickers:
-            await self.__download_apexpro_ohlcv(ticker.symbol, ticker.base, ticker.quote, since_ts, till_ts, self.ohlcv_data_interval['apexpro'])
+            # Check if data already exists and get last timestamp
+            last_ts = DataWriter.get_last_timestamp('apexpro', ticker.base, ticker.quote)
+            download_since = last_ts + 60000 if last_ts is not None else since_ts  # Add 1 minute (60000 ms) to avoid duplicate
+            
+            # Skip if no new data to download
+            if download_since >= till_ts:
+                print(f'Skipping apexpro-{ticker.symbol}: data is up to date')
+                continue
+            
+            await self.__download_apexpro_ohlcv(ticker.symbol, ticker.base, ticker.quote, download_since, till_ts, self.ohlcv_data_interval['apexpro'])
             await asyncio.sleep(0.01)
-            counter += 0
-            if counter > 2:
-                break
 
     async def __download_okx_ohlcv(self, symbol, base, quote, since_ts, till_ts, bar_size):
         ohlcv = []
@@ -145,9 +165,13 @@ class DataDownLoader:
                         print(res)
                         break
                 await asyncio.sleep(0.1)
-            print('Downloaded ', 'okx', '-', symbol, ' len=', len(ohlcv))
-            await OHLCConverter.convert_ohlc('okx', ohlcv, symbol, base, quote)
-            await DataWriter.write_data('okx', symbol, base, quote)
+            if len(ohlcv) > 0:
+                mode = 'Updated' if DataWriter.file_exists('okx', base, quote) else 'Downloaded'
+                print(f'{mode} okx-{symbol} ({base}-{quote}): {len(ohlcv)} records')
+                await OHLCConverter.convert_ohlc('okx', ohlcv, symbol, base, quote)
+                await DataWriter.write_data('okx', symbol, base, quote)
+            else:
+                print(f'No new data for okx-{symbol}')
 
 
 
@@ -176,9 +200,13 @@ class DataDownLoader:
                         print(res)
                         break
                 await asyncio.sleep(0.1)
-            print('Downloaded ', 'bybit', '-', symbol, ' len=', len(ohlcv))
-            await OHLCConverter.convert_ohlc('bybit', ohlcv, symbol, base, quote)
-            await DataWriter.write_data('bybit', symbol, base, quote)
+            if len(ohlcv) > 0:
+                mode = 'Updated' if DataWriter.file_exists('bybit', base, quote) else 'Downloaded'
+                print(f'{mode} bybit-{symbol} ({base}-{quote}): {len(ohlcv)} records')
+                await OHLCConverter.convert_ohlc('bybit', ohlcv, symbol, base, quote)
+                await DataWriter.write_data('bybit', symbol, base, quote)
+            else:
+                print(f'No new data for bybit-{symbol}')
 
 
     async def __download_dydx_ohlcv(self, symbol, base, quote, since_ts, till_ts, interval):
@@ -208,9 +236,13 @@ class DataDownLoader:
                         print(res)
                         break
                 await asyncio.sleep(0.1)
-            print('Downloaded ', 'dydx', '-', symbol, ' len=', len(ohlcv))
-            await OHLCConverter.convert_ohlc('dydx', ohlcv, symbol, base, quote)
-            await DataWriter.write_data('dydx', symbol, base, quote)
+            if len(ohlcv) > 0:
+                mode = 'Updated' if DataWriter.file_exists('dydx', base, quote) else 'Downloaded'
+                print(f'{mode} dydx-{symbol} ({base}-{quote}): {len(ohlcv)} records')
+                await OHLCConverter.convert_ohlc('dydx', ohlcv, symbol, base, quote)
+                await DataWriter.write_data('dydx', symbol, base, quote)
+            else:
+                print(f'No new data for dydx-{symbol}')
 
 
     async def __dydx(self, symbol):
@@ -268,9 +300,13 @@ class DataDownLoader:
                         break
                 await asyncio.sleep(0.01)
             if normal_termination:
-                print('Downloaded ', 'apexpro', '-', symbol, ' len=', len(ohlcv))
-                await OHLCConverter.convert_ohlc('apexpro', ohlcv, symbol, base, quote)
-                await DataWriter.write_data('apexpro', symbol, base, quote)
+                if len(ohlcv) > 0:
+                    mode = 'Updated' if DataWriter.file_exists('apexpro', base, quote) else 'Downloaded'
+                    print(f'{mode} apexpro-{symbol} ({base}-{quote}): {len(ohlcv)} records')
+                    await OHLCConverter.convert_ohlc('apexpro', ohlcv, symbol, base, quote)
+                    await DataWriter.write_data('apexpro', symbol, base, quote)
+                else:
+                    print(f'No new data for apexpro-{symbol}')
 
 
 
