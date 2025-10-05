@@ -78,16 +78,97 @@ CryptoHistoricalMarketData/
 
 ### Docker環境での実行
 
+#### 前提条件
+
+- Docker Engine 20.10 以降
+- Docker Compose V2 (または docker-compose 1.29以降)
+
+#### クイックスタート
+
 1. **リポジトリをクローン**
    ```bash
    git clone https://github.com/alunfes/CryptoHistoricalMarketData.git
    cd CryptoHistoricalMarketData
    ```
 
-2. **Docker Composeでビルド・実行**
+2. **設定ファイルの編集**
+   
+   `ignore/`ディレクトリ内の設定ファイルを編集します：
+   - `ignore/params.yaml` - 取引所、間隔、ダウンロードパラメータを設定
+   - `ignore/apiendpoints.yaml` - APIエンドポイント（通常変更不要）
+
+3. **コンテナのビルドと起動**
    ```bash
-   docker-compose up --build
+   docker compose up --build -d
    ```
+
+4. **データ取得の実行**
+   ```bash
+   docker compose exec crypto-data-fetcher python3 app/main.py
+   ```
+
+5. **ログの確認**
+   ```bash
+   docker compose logs -f crypto-data-fetcher
+   ```
+
+6. **ダウンロードされたデータの確認**
+   
+   データはホストマシンの`./app/Data/`ディレクトリに保存されます
+
+#### Dockerコマンドリファレンス
+
+- **コンテナの停止:**
+  ```bash
+  docker compose down
+  ```
+
+- **コード変更後の再ビルド:**
+  ```bash
+  docker compose up --build
+  ```
+
+- **対話モードで実行:**
+  ```bash
+  docker compose exec crypto-data-fetcher /bin/bash
+  ```
+
+- **コンテナの状態確認:**
+  ```bash
+  docker compose ps
+  ```
+
+- **コンテナとボリュームの削除:**
+  ```bash
+  docker compose down -v
+  ```
+
+#### Docker単体での使用（docker-compose不使用）
+
+1. **イメージのビルド:**
+   ```bash
+   docker build -t crypto-data-fetcher .
+   ```
+
+2. **コンテナの実行:**
+   ```bash
+   docker run -it --rm \
+     -v $(pwd)/ignore:/app/ignore \
+     -v $(pwd)/app/Data:/app/app/Data \
+     crypto-data-fetcher
+   ```
+
+#### Dockerボリューム管理
+
+Docker設定ではデータ永続化のためにボリュームを使用します：
+
+- **設定ファイル:** `./ignore` → `/app/ignore` (読み取り専用推奨)
+- **ダウンロードデータ:** `./app/Data` → `/app/app/Data` (永続ストレージ)
+
+これにより以下が保証されます：
+- 設定変更がリビルドなしで反映される
+- ダウンロードデータがコンテナ再起動後も保持される
+- バックアップとデータ管理が容易
 
 ## 設定方法
 
@@ -398,13 +479,41 @@ python test_full_workflow.py
 
 1. **Dockerログを確認**
    ```bash
-   docker-compose logs
+   docker compose logs -f crypto-data-fetcher
    ```
 
 2. **コンテナを再起動**
    ```bash
-   docker-compose down
-   docker-compose up --build
+   docker compose down
+   docker compose up --build
+   ```
+
+3. **ボリュームの権限問題**
+   
+   ダウンロードしたデータにアクセスできない場合：
+   ```bash
+   # Dataディレクトリの権限を確認
+   ls -la app/Data
+   
+   # 必要に応じて権限を変更
+   sudo chmod -R 755 app/Data
+   ```
+
+4. **コンテナ内でデバッグ**
+   ```bash
+   # コンテナに入る
+   docker compose exec crypto-data-fetcher /bin/bash
+   
+   # 手動でアプリケーションを実行
+   python3 app/main.py
+   ```
+
+5. **Dockerイメージの再ビルド**
+   
+   キャッシュをクリアして完全に再ビルド：
+   ```bash
+   docker compose build --no-cache
+   docker compose up
    ```
 
 ## パフォーマンスの最適化
@@ -446,7 +555,27 @@ crontab -e
 
 ### Dockerでの定期実行
 
-Docker環境で定期実行する場合は、ホストシステムでcronを設定するか、専用のスケジューラーコンテナを使用します。
+Docker環境で定期実行する場合は、以下の方法があります：
+
+1. **ホストシステムでcronを設定**
+   ```bash
+   # crontabを編集
+   crontab -e
+   
+   # 毎時0分に実行
+   0 * * * * cd /path/to/CryptoHistoricalMarketData && docker compose exec -T crypto-data-fetcher python3 app/main.py >> /var/log/crypto_data.log 2>&1
+   
+   # 毎日午前3時に実行
+   0 3 * * * cd /path/to/CryptoHistoricalMarketData && docker compose exec -T crypto-data-fetcher python3 app/main.py >> /var/log/crypto_data.log 2>&1
+   ```
+
+2. **systemdタイマーを使用**
+   
+   より柔軟な制御が必要な場合はsystemdサービスとタイマーを作成
+
+3. **Kubernetes CronJobを使用**
+   
+   クラウド環境での運用にはKubernetes CronJobとしてデプロイ
 
 ## データの活用例
 
