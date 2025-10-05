@@ -44,11 +44,11 @@ The Docker configuration has been completely reviewed and enhanced with producti
    - Configured proper working directory and build context
 
 2. **`requirements.txt`** (root level)
-   - Added missing dependencies: `dydx3`, `web3`
+   - Added missing dependencies: `dydx-v4-client`, `web3`
    - All dependencies needed by the application are now listed
 
 3. **`app/requirements.txt`**
-   - Added missing dependencies: `aiohttp`, `dydx3`, `web3`
+   - Added missing dependencies: `aiohttp`, `dydx-v4-client`, `web3`
    - Synchronized with actual imports in the codebase
 
 4. **`README.md`**
@@ -76,7 +76,7 @@ The Docker configuration has been completely reviewed and enhanced with producti
 - **After**: Uses `python:3.11-slim` (specific, reproducible)
 
 ### 2. Dependencies
-- **Before**: Missing `dydx3`, `web3`, `aiohttp` in requirements
+- **Before**: Missing `dydx-v4-client`, `web3`, `aiohttp` in requirements
 - **After**: All dependencies properly listed and versioned
 
 ### 3. File Organization
