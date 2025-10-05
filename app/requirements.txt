@@ -7,5 +7,5 @@ pyarrow
 fastparquet
 python-dateutil
 aiohttp
-dydx3
+dydx-v4-client
 web3

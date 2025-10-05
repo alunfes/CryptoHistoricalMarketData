@@ -12,10 +12,6 @@ import time
 import datetime
 import sys
 from dateutil.parser import isoparse
-from dydx3 import Client
-from dydx3.helpers.request_helpers import generate_now_iso
-from web3 import Web3
-from dydx3.constants import *
 
 
 
@@ -243,25 +239,6 @@ class DataDownLoader:
                 await DataWriter.write_data('dydx', symbol, base, quote)
             else:
                 print(f'No new data for dydx-{symbol}')
-
-
-    async def __dydx(self, symbol):
-        client = Client(
-            host='https://api.dydx.exchange',
-        )
-        client.public.get_markets()
-        market_symbol = f"MARKET_{symbol.upper()}_USD"
-
-        # getattrを使用して定数の値を取得します
-        market = getattr(sys.modules['dydx3.constants'], market_symbol)
-
-        price = client.public.get_candles(market=market, resolution="5MINS")
-        print(price)
-
-        candles = client.public.get_candles(
-        market=MARKET_BTC_USD,
-        resolution='1DAY',
-        )
 
 
     '''
