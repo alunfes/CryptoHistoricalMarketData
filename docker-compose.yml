@@ -1,9 +1,21 @@
 services:
-  app:
-    build: ./app
-    restart: always
-    tty: true
-    working_dir: "/root/"
+  crypto-data-fetcher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crypto-historical-data
+    restart: unless-stopped
     volumes:
-      - ./app:/root/app
+      # Mount configuration files
+      - ./ignore:/app/ignore
+      # Mount data directory to persist downloaded data
+      - ./app/Data:/app/app/Data
+    environment:
+      - PYTHONUNBUFFERED=1
+    # Uncomment to run the application continuously
+    # command: python3 app/main.py
+    # Or use for one-time execution
+    command: tail -f /dev/null
+    tty: true
+    stdin_open: true
     

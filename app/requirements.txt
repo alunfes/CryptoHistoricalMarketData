@@ -6,3 +6,6 @@ pyyaml
 pyarrow
 fastparquet
 python-dateutil
+aiohttp
+dydx3
+web3
