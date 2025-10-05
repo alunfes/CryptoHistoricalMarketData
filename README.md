@@ -30,17 +30,23 @@ CryptoHistoricalMarketData-main/
 │   ├── TickerData.py
 │   ├── main.py
 │   ├── test.py
-│   ├── Dockerfile
 │   └── requirements.txt
-└── ignore/
-    ├── apiendpoints.yaml
-    └── params.yaml
+├── ignore/
+│   ├── apiendpoints.yaml
+│   └── params.yaml
+├── Dockerfile
+├── docker-compose.yml
+└── .dockerignore
 
 Prerequisites
 
-Python 3.8 or later
+**For Local Setup:**
+- Python 3.8 or later
+- pip (Python package manager)
 
-Docker and Docker Compose (optional, for containerized deployment)
+**For Docker Setup:**
+- Docker Engine 20.10 or later
+- Docker Compose V2 (or docker-compose 1.29+)
 
 Installation
 
@@ -61,9 +67,97 @@ python app/main.py
 
 Docker Setup
 
-Build and run the application using Docker Compose:
+#### Prerequisites
 
-docker-compose up --build
+- Docker Engine 20.10 or later
+- Docker Compose V2 (or docker-compose 1.29+)
+
+#### Quick Start with Docker
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/alunfes/CryptoHistoricalMarketData.git
+   cd CryptoHistoricalMarketData
+   ```
+
+2. **Configure your settings:**
+   
+   Edit the configuration files in the `ignore/` directory:
+   - `ignore/params.yaml` - Set exchanges, intervals, and download parameters
+   - `ignore/apiendpoints.yaml` - API endpoints (usually no changes needed)
+
+3. **Build and start the container:**
+   ```bash
+   docker-compose up --build -d
+   ```
+
+4. **Run the data fetcher:**
+   ```bash
+   docker-compose exec crypto-data-fetcher python3 app/main.py
+   ```
+
+5. **View logs:**
+   ```bash
+   docker-compose logs -f crypto-data-fetcher
+   ```
+
+6. **Access downloaded data:**
+   
+   Data is persisted in `./app/Data/` directory on your host machine
+
+#### Docker Commands Reference
+
+- **Stop the container:**
+  ```bash
+  docker-compose down
+  ```
+
+- **Rebuild after code changes:**
+  ```bash
+  docker-compose up --build
+  ```
+
+- **Run in interactive mode:**
+  ```bash
+  docker-compose exec crypto-data-fetcher /bin/bash
+  ```
+
+- **View container status:**
+  ```bash
+  docker-compose ps
+  ```
+
+- **Remove containers and volumes:**
+  ```bash
+  docker-compose down -v
+  ```
+
+#### Using Plain Docker (without docker-compose)
+
+1. **Build the image:**
+   ```bash
+   docker build -t crypto-data-fetcher .
+   ```
+
+2. **Run the container:**
+   ```bash
+   docker run -it --rm \
+     -v $(pwd)/ignore:/app/ignore \
+     -v $(pwd)/app/Data:/app/app/Data \
+     crypto-data-fetcher
+   ```
+
+#### Docker Volume Management
+
+The Docker setup uses volumes to persist data:
+
+- **Configuration files:** `./ignore` → `/app/ignore` (read-only recommended)
+- **Downloaded data:** `./app/Data` → `/app/app/Data` (persistent storage)
+
+This ensures:
+- Configuration changes are reflected without rebuilding
+- Downloaded data persists across container restarts
+- Easy backup and data management
 
 Configuration
 
@@ -119,9 +213,31 @@ python app/test.py
 
 Deployment
 
-Use the provided Dockerfile to create a standalone Docker container.
+**Docker Deployment (Recommended for Production)**
 
-Deploy the application using docker-compose.yml for multi-container setups.
+The application is optimized for Docker deployment with the following benefits:
+- Consistent environment across different systems
+- Easy dependency management
+- Isolated execution environment
+- Simple data persistence through volumes
+
+Follow the Docker Setup section above for deployment instructions.
+
+**Scheduling Automated Runs**
+
+For production use, you can schedule regular data fetches:
+
+1. **Using cron with Docker:**
+   ```bash
+   # Add to crontab (crontab -e)
+   0 * * * * cd /path/to/CryptoHistoricalMarketData && docker-compose exec -T crypto-data-fetcher python3 app/main.py >> /var/log/crypto-data.log 2>&1
+   ```
+
+2. **Using systemd timer:**
+   Create a systemd service and timer for scheduled execution
+
+3. **Using Kubernetes CronJob:**
+   Deploy as a Kubernetes CronJob for cloud environments
 
 Contribution
 
