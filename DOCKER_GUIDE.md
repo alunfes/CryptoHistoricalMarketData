@@ -340,10 +340,10 @@ If APIs are unreachable:
 
 ```bash
 # Test from container
-docker compose exec crypto-data-fetcher curl -I https://api.dydx.exchange/v3/markets
+docker compose exec crypto-data-fetcher curl -I https://indexer.dydx.trade/v4/perpetualMarkets
 
 # Check DNS resolution
-docker compose exec crypto-data-fetcher nslookup api.dydx.exchange
+docker compose exec crypto-data-fetcher nslookup indexer.dydx.trade
 ```
 
 ### Out of Memory

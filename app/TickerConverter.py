@@ -36,12 +36,21 @@ class TickerConverter:
     @classmethod
     def __convert_dydx_ticker(cls, ticker_json):
         '''
-        {"markets":{"CELO-USD":{"market":"CELO-USD","status":"ONLINE","baseAsset":"CELO","quoteAsset":"USD","stepSize":"1","tickSize":"0.001","indexPrice":"0.4173","oraclePrice":"0.4167","priceChange24H":"0.000086","nextFundingRate":"0.0000098246","nextFundingAt":"2023-06-14T05:00:00.000Z","minOrderSize":"10","type":"PERPETUAL","initialMarginFraction":"0.2","maintenanceMarginFraction":"0.05","transferMarginFraction":"0.004204","volume24H":"2677351.970000","trades24H":"1849","openInterest":"624888","incrementalInitialMarginFraction":"0.02","incrementalPositionSize":"17700","maxPositionSize":"355000","baselinePositionSize":"35500","assetResolution":"1000000","syntheticAssetId":"0x43454c4f2d36000000000000000000"},"LINK-USD":{"market":"LINK-USD","status":"ONLINE","baseAsset":"LINK","quoteAsset":"USD","stepSize":"0.1","tickSize":"0.001","indexPrice":"5.3934","oraclePrice":"5.3818","priceChange24H":"0.213470","nextFundingRate":"0.0000100141","nextFundingAt":"2023-06-14T05:00:00.000Z","minOrderSize":"1","type":"PERPETUAL","initialMarginFraction":"0.10","maintenanceMarginFraction":"0.05","transferMarginFraction":"0.008147","volume24H":"2699917.002400","trades24H":"3135","openInterest":"316078.7","incrementalInitialMarginFraction":"0.02","incrementalPositionSize":"14000","maxPositionSize":"700000","baselinePositionSize":"70000","assetResolution":"10000000","syntheticAssetId":"0x4c494e4b2d37000000000000000000"},
+        dYdX v4 API response format:
+        {"markets":{"BTC-USD":{"ticker":"BTC-USD","status":"ACTIVE","baseAsset":"BTC","quoteAsset":"USD",...}}}
+        
+        v3 format (for reference):
+        {"markets":{"CELO-USD":{"market":"CELO-USD","status":"ONLINE","baseAsset":"CELO","quoteAsset":"USD",...}}}
         '''
         for market, details in ticker_json['markets'].items():
-            # Check if the market status is 'ONLINE'
-            if details['status'] == 'ONLINE':
-                TickerData.add_ticker('dydx', details['market'], details['baseAsset'], details['quoteAsset'], details['type'])
+            # v4 uses 'ACTIVE' status instead of 'ONLINE', and 'ticker' instead of 'market'
+            status = details.get('status', '')
+            if status in ['ONLINE', 'ACTIVE']:  # Support both v3 and v4 formats
+                market_name = details.get('ticker', details.get('market', market))
+                base_asset = details.get('baseAsset', market.split('-')[0])
+                quote_asset = details.get('quoteAsset', market.split('-')[1])
+                market_type = details.get('type', 'PERPETUAL')
+                TickerData.add_ticker('dydx', market_name, base_asset, quote_asset, market_type)
 
 
     @classmethod

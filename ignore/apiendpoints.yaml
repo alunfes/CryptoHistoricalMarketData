@@ -5,8 +5,8 @@ okx:
   ticker: https://aws.okx.com/api/v5/public/instruments?instType=SWAP
   ohlc: https://aws.okx.com/api/v5/market/history-candles
 dydx:
-  ticker: https://api.dydx.exchange/v3/markets
-  ohlc: https://api.dydx.exchange/v3/candles/ #BTC-USD?resolution=1DAY&fromISO=2023-04-24T09:50:00.000Z
+  ticker: https://indexer.dydx.trade/v4/perpetualMarkets
+  ohlc: https://indexer.dydx.trade/v4/candles/perpetualMarkets/ #BTC-USD?resolution=1MIN&fromISO=2023-04-24T09:50:00.000Z
 apexpro:
   ticker: https://pro.apex.exchange/api/v1/symbols
   ohlc: https://pro.apex.exchange/api/v1/klines #?symbol=BTCUSDC&interval=1&start=1686698700

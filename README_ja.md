@@ -217,8 +217,8 @@ okx:
   ticker: https://aws.okx.com/api/v5/public/instruments?instType=SWAP
   ohlc: https://aws.okx.com/api/v5/market/history-candles
 dydx:
-  ticker: https://api.dydx.exchange/v3/markets
-  ohlc: https://api.dydx.exchange/v3/candles/
+  ticker: https://indexer.dydx.trade/v4/perpetualMarkets
+  ohlc: https://indexer.dydx.trade/v4/candles/perpetualMarkets/
 apexpro:
   ticker: https://pro.apex.exchange/api/v1/symbols
   ohlc: https://pro.apex.exchange/api/v1/klines
@@ -361,8 +361,8 @@ since_num_days_before: 180
 - **対応商品**: スワップ契約
 
 ### dYdX
-- **銘柄情報API**: https://api.dydx.exchange/v3/markets
-- **OHLC API**: https://api.dydx.exchange/v3/candles/
+- **銘柄情報API**: https://indexer.dydx.trade/v4/perpetualMarkets
+- **OHLC API**: https://indexer.dydx.trade/v4/candles/perpetualMarkets/
 - **対応商品**: パーペチュアル契約
 
 ### ApexPro
@@ -436,7 +436,7 @@ python test_full_workflow.py
 1. **ネットワーク接続を確認**
    - 各取引所のAPIエンドポイントにアクセス可能か確認
    ```bash
-   curl https://api.dydx.exchange/v3/markets
+   curl https://indexer.dydx.trade/v4/perpetualMarkets
    ```
 
 2. **設定ファイルを確認**

@@ -195,9 +195,9 @@ OHLC: https://aws.okx.com/api/v5/market/history-candles
 
 dYdX
 
-Ticker: https://api.dydx.exchange/v3/markets
+Ticker: https://indexer.dydx.trade/v4/perpetualMarkets
 
-OHLC: https://api.dydx.exchange/v3/candles/
+OHLC: https://indexer.dydx.trade/v4/candles/perpetualMarkets/
 
 ApexPro
 
